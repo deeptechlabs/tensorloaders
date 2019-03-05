@@ -3,12 +3,19 @@
 
 language: python
 
+before_install:
+  - sudo apt-get install -y redis-server
+
 matrix:
   include:
     - python: 3.5
       env: TOXENV=py35
     - python: 3.6
       env: TOXENV=py36
+    - python: 3.7
+      dist: xenial
+      sudo: true
+      env: TOXENV=py37
 
 install: pip install tox pytest
 
