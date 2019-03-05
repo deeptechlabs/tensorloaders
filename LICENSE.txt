@@ -1,6 +1,6 @@
 BSD 3-Clause License
 
-Copyright (c) 2019, Dendi Suhubdy
+Copyright (c) 2019, Deep Technology Laboratories LLC
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
