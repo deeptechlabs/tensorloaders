@@ -1,4 +1,4 @@
-from .redisdataset import RedisDataset
+from .redisdataset import RedisDataset # noqa
 
 
 def main():

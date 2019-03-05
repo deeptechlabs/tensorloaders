@@ -4,9 +4,10 @@ In-memory tensorloaders for deep learning datasets. We will soon support downloa
 
 # Author
 
-@ptrblck, @dendisuhubdy
+* @ptrblck
+* @dendisuhubdy
 
 # Copyright
 
-Copyright (c) 2019, ptrblck
-Copyright (c) 2019, Deep Technology Laboratories LLC
+* Copyright (c) 2019, ptrblck
+* Copyright (c) 2019, Deep Technology Laboratories LLC
