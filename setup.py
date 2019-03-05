@@ -43,7 +43,7 @@ setup(
     keywords='deeplearning scientific mathematics',  # Optional
     packages=find_packages(exclude=['contrib', 'docs', 'tests']),  # Required
     python_requires='>=3.5.*, <4',
-    install_requires=['numpy', 'redis', 'torch'],  # Optional
+    install_requires=['numpy', 'redis', 'torch', 'torchvision'],  # Optional
     extras_require={  # Optional
         'dev': ['check-manifest'],
         'test': ['coverage'],
