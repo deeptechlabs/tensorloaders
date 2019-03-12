@@ -1,0 +1,1 @@
+python3 tensorloaders/datasets/preprocess.py --preset=./examples/ljspeech_mixture.json ljspeech /Users/grokmachine/data/LJSpeech /Users/grokmachine/data/LJSpeech_80mels --sample_rate=22050 --fft_size=1024 --hop_size=256 --n_mels=80
