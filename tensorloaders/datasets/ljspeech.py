@@ -1,5 +1,8 @@
+import redis
+
 from concurrent.futures import ProcessPoolExecutor
 from functools import partial
+from tqdm import tqdm
 import numpy as np
 import os
 
@@ -11,26 +14,33 @@ from audio import (load_wav, start_and_end_indices,
                    melspectrogram, lws_pad_lr)
 
 
-def build_from_path(in_dir, out_dir, num_workers=1,
-                    sample_rate=22050, fft_size=1024,
-                    hop_size=256, n_mels=80, tqdm=lambda x: x):
-    executor = ProcessPoolExecutor(max_workers=num_workers)
+def build_from_path(in_dir, out_dir,
+                    num_workers=1, sample_rate=22050,
+                    fft_size=1024, hop_size=256, n_mels=80,
+                    tqdm=lambda x: x, database=1):
+    # executor = ProcessPoolExecutor(max_workers=num_workers)
     futures = []
     index = 1
+    redis_connection = redis.Redis(host='localhost', port=6379, db=database)
     with open(os.path.join(in_dir, 'metadata.csv'), encoding='utf-8') as f:
-        for line in f:
+        for line in tqdm(f):
             parts = line.strip().split('|')
             wav_path = os.path.join(in_dir, 'wavs', '%s.wav' % parts[0])
             text = parts[2]
-            futures.append(executor.submit(
-                partial(_process_utterance, out_dir, index, wav_path,
-                        text, sample_rate, fft_size, hop_size, n_mels)))
+            # futures.append(executor.submit(
+                # partial(_process_utterance, out_dir, index, wav_path,
+                        # text, sample_rate, fft_size, hop_size, n_mels,
+                        # redis_connection)))
+            metadata = _process_utterance(out_dir, index, wav_path, text, sample_rate,
+                              fft_size, hop_size, n_mels, redis_connection)
+            futures.append(metadata)
             index += 1
-    return [future.result() for future in tqdm(futures)]
+    return futures
 
 
 def _process_utterance(out_dir, index, wav_path, text,
-                       sample_rate, fft_size, hop_size, n_mels):
+                       sample_rate, fft_size, hop_size, n_mels,
+                       redis_connection):
     # Load the audio to a numpy array:
     wav = load_wav(wav_path)
 
@@ -99,10 +109,13 @@ def _process_utterance(out_dir, index, wav_path, text,
     audio_filename = 'ljspeech-audio-%05d.npy' % index
     mel_filename = 'ljspeech-mel-%05d.npy' % index
     # recon_audio_filename = 'ljspeech-audio-%05d.wav' % index
-    np.save(os.path.join(out_dir, audio_filename),
-            out.astype(out_dtype), allow_pickle=False)
-    np.save(os.path.join(out_dir, mel_filename),
-            mel_spectrogram.astype(np.float32), allow_pickle=False)
+    data = out.tobytes()
+    target = np.asarray(text).tobytes()
+    redis_connection.set(index, data + target)
+    # np.save(os.path.join(out_dir, audio_filename),
+            # out.astype(out_dtype), allow_pickle=False)
+    # np.save(os.path.join(out_dir, mel_filename),
+            # mel_spectrogram.astype(np.float32), allow_pickle=False)
     # audio.save_wav(signal, os.path.join(out_dir, recon_audio_filename))
 
     # Return a tuple describing this training example:
